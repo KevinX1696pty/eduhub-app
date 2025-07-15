@@ -1,7 +1,7 @@
 
 import streamlit as st
 
-st.set_page_config(page_title="EduHub - Tu Futuro en Marcha", layout="wide")
+st.set_page_config(page_title="EduHub | Tu Futuro en Marcha", layout="wide")
 
 st.markdown(
     '''
@@ -9,68 +9,63 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
     html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
-    }
-    .stApp {
         background-color: #F3F7FB;
     }
-    h1, h2, h3 {
+    .card {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 6px 16px rgba(0,0,0,0.1);
+    }
+    .card h3 {
         color: #0A1D37;
     }
-    .menu-title {
-        font-size: 22px;
+    .card p {
+        color: #555;
+        font-size: 14px;
+    }
+    .stButton>button {
+        background-color: #0A1D37;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
         font-weight: 600;
-        margin-bottom: 10px;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    .stButton>button:hover {
+        background-color: #11335D;
     }
     </style>
     ''',
     unsafe_allow_html=True
 )
 
-st.title("🚀 EduHub: Ecosistema de Orientación y Empleabilidad")
+st.title("🌐 Bienvenido a EduHub")
+st.markdown("### Tu ecosistema de orientación vocacional, empleabilidad y formación continua")
 
-# Sidebar menú
-menu = st.sidebar.radio("Navegar a:", [
-    "1. Test Vocacional",
-    "2. Panorama de Carreras",
-    "3. Vacantes Laborales",
-    "4. Universidades",
-    "5. Becas",
-    "6. Cursos",
-    "7. Indicadores Salariales",
-    "8. Plan Personal de Acción"
-])
+# Paneles
+panels = [
+    {"icon": "🧠", "title": "Test Vocacional", "desc": "Descubre tus intereses y fortalezas profesionales."},
+    {"icon": "🌐", "title": "Panorama de Carreras", "desc": "Explora opciones de estudio alineadas a tu perfil."},
+    {"icon": "💼", "title": "Vacantes Laborales", "desc": "Encuentra empleos según tu perfil y país."},
+    {"icon": "🎓", "title": "Universidades", "desc": "Busca dónde estudiar tu carrera ideal."},
+    {"icon": "💰", "title": "Becas", "desc": "Aplica a oportunidades de financiamiento educativo."},
+    {"icon": "📚", "title": "Cursos", "desc": "Refuerza tus habilidades con formación complementaria."},
+    {"icon": "📈", "title": "Indicadores Salariales", "desc": "Consulta rangos salariales por carrera y país."},
+    {"icon": "🧭", "title": "Plan de Acción", "desc": "Recibe una hoja de ruta personalizada."}
+]
 
-# Contenido de cada panel
-if menu == "1. Test Vocacional":
-    st.header("🧠 Test Vocacional")
-    st.write("Responde un test interactivo para descubrir tu perfil e intereses profesionales.")
-
-elif menu == "2. Panorama de Carreras":
-    st.header("🌐 Panorama de Carreras")
-    st.write("Explora opciones profesionales alineadas a tu perfil vocacional. Conoce qué se estudia, qué habilidades se requieren y qué oportunidades ofrece cada carrera.")
-
-elif menu == "3. Vacantes Laborales":
-    st.header("💼 Vacantes Laborales")
-    st.write("Accede a ofertas laborales actualizadas según tu país, perfil o interés.")
-
-elif menu == "4. Universidades":
-    st.header("🎓 Universidades")
-    st.write("Busca dónde estudiar tu carrera ideal, según país, modalidad y requisitos.")
-
-elif menu == "5. Becas":
-    st.header("💰 Becas")
-    st.write("Encuentra oportunidades de financiamiento para tu educación. Filtra por país y nivel académico.")
-
-elif menu == "6. Cursos":
-    st.header("📚 Cursos Complementarios")
-    st.write("Accede a cursos que te ayudarán a reforzar habilidades clave o reconvertirte profesionalmente.")
-
-elif menu == "7. Indicadores Salariales":
-    st.header("📈 Indicadores Salariales")
-    st.write("Consulta rangos salariales por profesión, país y nivel de experiencia.")
-
-elif menu == "8. Plan Personal de Acción":
-    st.header("🧭 Plan Personal de Acción")
-    st.write("Recibe una hoja de ruta personalizada con los próximos pasos para alcanzar tu meta profesional.")
-
-st.info("💡 Tip: Este demo solo muestra el esquema general. Podemos conectar APIs y bases de datos reales para tenerlo 100% funcional.")
+cols = st.columns(4)
+for i, panel in enumerate(panels):
+    with cols[i % 4]:
+        st.markdown(f"<div class='card'><h3>{panel['icon']} {panel['title']}</h3><p>{panel['desc']}</p><form action='#'><button>Ir al panel</button></form></div>", unsafe_allow_html=True)
+    if (i + 1) % 4 == 0 and i + 1 < len(panels):
+        cols = st.columns(4)
