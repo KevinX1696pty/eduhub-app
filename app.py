@@ -3,22 +3,32 @@ import streamlit as st
 import requests
 import numpy as np
 
-# Custom CSS for styling
+st.set_page_config(page_title="EduHub Premium", layout="wide")
+
+# Custom CSS for marketing-friendly design
 st.markdown(
     '''
     <style>
-    .big-font { font-size:35px !important; color:#4B0082; font-weight:bold; }
-    .sub-header { font-size:25px !important; color:#4B0082; }
-    .stApp { background-color: #F8F0FF; }
-    .stButton>button { background-color:#800080; color:white; border-radius:8px; padding:8px 16px; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+    .big-font { font-size:35px !important; color:#0A1D37; font-weight:bold; }
+    .sub-header { font-size:25px !important; color:#0A1D37; }
+    .stApp { background-color: #F4F7FB; }
+    .stButton>button {
+        background-color:#3D7DD9;
+        color:white;
+        border-radius:8px;
+        padding:10px 20px;
+        font-weight:bold;
+    }
     </style>
     ''',
     unsafe_allow_html=True
 )
 
-st.set_page_config(page_title="EduHub Premium", layout="wide")
-
-# Initialize session state for navigation
+# Session State
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "user" not in st.session_state:
@@ -29,107 +39,119 @@ if "page" not in st.session_state:
     st.session_state.page = "Inicio"
 
 def login():
-    st.sidebar.header("🔐 Login")
+    st.sidebar.header("🔐 Inicia sesión")
     with st.sidebar.form("login_form"):
         email = st.text_input("Correo electrónico")
-        country = st.selectbox("País", ["Panamá", "Colombia", "México", "Argentina", "Otro"])
+        country = st.selectbox("País", ["Panamá", "Colombia", "México", "Chile", "Otro"])
         submitted = st.form_submit_button("Ingresar")
         if submitted and email:
             st.session_state.logged_in = True
             st.session_state.user = {"email": email, "country": country}
             st.session_state.page = "Inicio"
-            st.sidebar.success(f"Bienvenido, {email}")
+            st.sidebar.success("Bienvenido, " + email)
 
 def show_landing():
     st.markdown('<p class="big-font">Bienvenido a EduHub</p>', unsafe_allow_html=True)
-    st.write("Tu plataforma de orientación vocacional y laboral.")
-    if st.button("Iniciar Test"):
+    st.write("Descubre qué estudiar, dónde y cómo conseguir becas y trabajo según tu perfil.")
+    if st.button("🧠 Comenzar Test"):
         st.session_state.page = "Test"
 
 def show_test():
     st.markdown('<p class="sub-header">🧠 Test Vocacional</p>', unsafe_allow_html=True)
-    st.write("Responde de 1 (nada) a 5 (mucho).")
+    st.write("Selecciona tu afinidad con cada actividad (1 nada - 5 mucho).")
     questions = {
-        "Analítico": ["Resolver problemas matemáticos", "Investigar funcionamiento", "Analizar datos"],
-        "Creativo": ["Diseñar contenido", "Idear soluciones", "Expresión artística"],
-        "Social": ["Ayudar a otros", "Trabajo en equipo", "Gestionar conflictos"],
-        "Técnico": ["Programar tecnología", "Entender sistemas", "Procesos prácticos"],
-        "Empresarial": ["Liderar proyectos", "Planificación", "Negociación"],
-        "Realista": ["Trabajos manuales", "Operar equipos", "Logística"]
+        "Analítico": ["Resolver problemas matemáticos", "Investigar cómo funcionan las cosas", "Analizar grandes volúmenes de datos"],
+        "Creativo": ["Diseñar logos o contenido visual", "Proponer soluciones innovadoras", "Expresarte artísticamente"],
+        "Social": ["Ayudar a otros", "Trabajar en equipo", "Escuchar y aconsejar a personas"],
+        "Técnico": ["Programar sistemas", "Entender cómo funcionan las máquinas", "Optimizar procesos industriales"],
+        "Empresarial": ["Liderar proyectos", "Planificar recursos", "Negociar o vender"],
+        "Realista": ["Armar/desarmar cosas", "Conducir u operar equipos", "Trabajar con las manos"]
     }
     results = {}
     for dim, qs in questions.items():
-        st.write(f"**{dim}**")
-        results[dim] = np.mean([st.slider(q, 1, 5, 3, key=f"{dim}_{i}") for i, q in enumerate(qs)])
-    if st.button("Guardar Resultados"):
+        st.write(f"### {dim}")
+        scores = []
+        for i, q in enumerate(qs):
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.write(q)
+            with col2:
+                score = st.selectbox("", [1, 2, 3, 4, 5], key=f"{dim}_{i}")
+                scores.append(score)
+        results[dim] = np.mean(scores)
+    if st.button("✅ Ver resultados"):
         st.session_state.results = results
         st.session_state.page = "Dashboard"
-        st.success("Resultados guardados. Ve al Dashboard.")
 
 def obtener_universities(country):
     try:
         r = requests.get(f"http://universities.hipolabs.com/search?country={country}", timeout=5)
-        return r.json()[:10]
+        return r.json()[:5]
     except:
         return []
 
 def mock_scholarships(country):
     pool = {
-        "Panamá":[{"name":"IFARHU","link":"https://ifarhu.gob.pa"}],
-        "Global":[{"name":"Scholarship Portal","link":"https://scholarshipportal.com"}]
+        "Panamá": [{"name": "IFARHU", "link": "https://www.ifarhu.gob.pa"}],
+        "Chile": [{"name": "Becas Chile", "link": "https://www.becaschile.cl"}],
+        "Global": [{"name": "Scholarship Portal", "link": "https://www.scholarshipportal.com"}]
     }
     return pool.get(country, pool["Global"])
 
-def jobs_jooble(country, profile):
-    token = "TU_JOOBLE_API_KEY"
-    url = f"https://jooble.org/api/{token}"
-    payload = {"keywords":profile, "location":country}
-    try:
-        r = requests.post(url, json=payload, timeout=5)
-        return r.json().get("jobs", [])[:5]
-    except:
-        return []
+def jobs_demo(country, profile):
+    # Placeholder simulated results
+    return [
+        {"title": f"Analista de Datos en {country}", "location": country, "link": "#"},
+        {"title": f"Ingeniero de Software Jr. en {country}", "location": country, "link": "#"},
+        {"title": f"Consultor de Negocios en {country}", "location": country, "link": "#"},
+    ]
+
+def resumen_perfil(resultados):
+    top_dim = max(resultados, key=resultados.get)
+    recomend = {
+        "Analítico": "Ciencias, ingeniería, análisis de datos",
+        "Creativo": "Diseño gráfico, publicidad, UX/UI",
+        "Social": "Psicología, trabajo social, educación",
+        "Técnico": "Ingeniería, programación, redes",
+        "Empresarial": "Administración, economía, negocios",
+        "Realista": "Logística, mantenimiento, construcción"
+    }
+    return f"Tu perfil dominante es **{top_dim}**. Te recomendamos explorar áreas como **{recomend[top_dim]}**."
 
 def show_dashboard():
-    st.markdown('<p class="sub-header">📊 Dashboard</p>', unsafe_allow_html=True)
     user = st.session_state.user
     results = st.session_state.results
-    if not results:
-        st.info("Por favor completa el Test.")
-        return
-    left, right = st.columns(2)
-    with left:
-        st.write("**Usuario:**", user["email"])
-        st.write("**País:**", user["country"])
-        st.write("### Perfil")
-        for dim, sc in results.items():
-            st.progress(sc/5)
-            st.write(f"- {dim}: {sc:.1f}/5")
-    with right:
-        st.write("### 🎓 Universidades")
-        for u in obtener_universities(user["country"]):
-            st.markdown(f"- [{u['name']}]({u['web_pages'][0]})")
-        st.write("### 💰 Becas")
-        for b in mock_scholarships(user["country"]):
-            st.markdown(f"- [{b['name']}]({b['link']})")
-        st.write("### 💼 Vacantes")
-        profile_keys = " ".join([d for d,v in results.items() if v>=4])
-        for job in jobs_jooble(user["country"], profile_keys):
-            st.markdown(f"- [{job.get('title','')}]({job.get('link','#')}) • {job.get('location','')}")
+    st.markdown('<p class="sub-header">📊 Tu Dashboard</p>', unsafe_allow_html=True)
+
+    st.write("### Resultado del Test")
+    st.info(resumen_perfil(results))
+    st.write("")
+
+    st.write("### 🔎 Vacantes sugeridas")
+    for job in jobs_demo(user["country"], " ".join([k for k,v in results.items() if v>3.5])):
+        st.markdown(f"- [{job['title']}]({job['link']}) • {job['location']}")
+
+    st.write("### 🎓 Universidades destacadas")
+    for u in obtener_universities(user["country"]):
+        st.markdown(f"- [{u['name']}]({u['web_pages'][0]})")
+
+    st.write("### 💰 Becas disponibles")
+    for b in mock_scholarships(user["country"]):
+        st.markdown(f"- [{b['name']}]({b['link']})")
 
 # MAIN
 if not st.session_state.logged_in:
     login()
 else:
-    # Navigation
-    st.sidebar.header("Navegación")
-    for p in ["Inicio", "Test", "Dashboard"]:
-        if st.sidebar.button(p):
-            st.session_state.page = p
-    # Show page
+    # Sidebar navigation
+    with st.sidebar:
+        st.title("EduHub")
+        nav = st.radio("Ir a:", ["Inicio", "Test", "Dashboard"])
+        st.session_state.page = nav
+
     if st.session_state.page == "Inicio":
         show_landing()
     elif st.session_state.page == "Test":
         show_test()
-    else:
+    elif st.session_state.page == "Dashboard":
         show_dashboard()
