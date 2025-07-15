@@ -1,157 +1,76 @@
 
 import streamlit as st
-import requests
-import numpy as np
 
-st.set_page_config(page_title="EduHub Premium", layout="wide")
+st.set_page_config(page_title="EduHub - Tu Futuro en Marcha", layout="wide")
 
-# Custom CSS for marketing-friendly design
 st.markdown(
     '''
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
     html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
     }
-    .big-font { font-size:35px !important; color:#0A1D37; font-weight:bold; }
-    .sub-header { font-size:25px !important; color:#0A1D37; }
-    .stApp { background-color: #F4F7FB; }
-    .stButton>button {
-        background-color:#3D7DD9;
-        color:white;
-        border-radius:8px;
-        padding:10px 20px;
-        font-weight:bold;
+    .stApp {
+        background-color: #F3F7FB;
+    }
+    h1, h2, h3 {
+        color: #0A1D37;
+    }
+    .menu-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 10px;
     }
     </style>
     ''',
     unsafe_allow_html=True
 )
 
-# Session State
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "user" not in st.session_state:
-    st.session_state.user = {}
-if "results" not in st.session_state:
-    st.session_state.results = {}
-if "page" not in st.session_state:
-    st.session_state.page = "Inicio"
+st.title("🚀 EduHub: Ecosistema de Orientación y Empleabilidad")
 
-def login():
-    st.sidebar.header("🔐 Inicia sesión")
-    with st.sidebar.form("login_form"):
-        email = st.text_input("Correo electrónico")
-        country = st.selectbox("País", ["Panamá", "Colombia", "México", "Chile", "Otro"])
-        submitted = st.form_submit_button("Ingresar")
-        if submitted and email:
-            st.session_state.logged_in = True
-            st.session_state.user = {"email": email, "country": country}
-            st.session_state.page = "Inicio"
-            st.sidebar.success("Bienvenido, " + email)
+# Sidebar menú
+menu = st.sidebar.radio("Navegar a:", [
+    "1. Test Vocacional",
+    "2. Panorama de Carreras",
+    "3. Vacantes Laborales",
+    "4. Universidades",
+    "5. Becas",
+    "6. Cursos",
+    "7. Indicadores Salariales",
+    "8. Plan Personal de Acción"
+])
 
-def show_landing():
-    st.markdown('<p class="big-font">Bienvenido a EduHub</p>', unsafe_allow_html=True)
-    st.write("Descubre qué estudiar, dónde y cómo conseguir becas y trabajo según tu perfil.")
-    if st.button("🧠 Comenzar Test"):
-        st.session_state.page = "Test"
+# Contenido de cada panel
+if menu == "1. Test Vocacional":
+    st.header("🧠 Test Vocacional")
+    st.write("Responde un test interactivo para descubrir tu perfil e intereses profesionales.")
 
-def show_test():
-    st.markdown('<p class="sub-header">🧠 Test Vocacional</p>', unsafe_allow_html=True)
-    st.write("Selecciona tu afinidad con cada actividad (1 nada - 5 mucho).")
-    questions = {
-        "Analítico": ["Resolver problemas matemáticos", "Investigar cómo funcionan las cosas", "Analizar grandes volúmenes de datos"],
-        "Creativo": ["Diseñar logos o contenido visual", "Proponer soluciones innovadoras", "Expresarte artísticamente"],
-        "Social": ["Ayudar a otros", "Trabajar en equipo", "Escuchar y aconsejar a personas"],
-        "Técnico": ["Programar sistemas", "Entender cómo funcionan las máquinas", "Optimizar procesos industriales"],
-        "Empresarial": ["Liderar proyectos", "Planificar recursos", "Negociar o vender"],
-        "Realista": ["Armar/desarmar cosas", "Conducir u operar equipos", "Trabajar con las manos"]
-    }
-    results = {}
-    for dim, qs in questions.items():
-        st.write(f"### {dim}")
-        scores = []
-        for i, q in enumerate(qs):
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                st.write(q)
-            with col2:
-                score = st.selectbox("", [1, 2, 3, 4, 5], key=f"{dim}_{i}")
-                scores.append(score)
-        results[dim] = np.mean(scores)
-    if st.button("✅ Ver resultados"):
-        st.session_state.results = results
-        st.session_state.page = "Dashboard"
+elif menu == "2. Panorama de Carreras":
+    st.header("🌐 Panorama de Carreras")
+    st.write("Explora opciones profesionales alineadas a tu perfil vocacional. Conoce qué se estudia, qué habilidades se requieren y qué oportunidades ofrece cada carrera.")
 
-def obtener_universities(country):
-    try:
-        r = requests.get(f"http://universities.hipolabs.com/search?country={country}", timeout=5)
-        return r.json()[:5]
-    except:
-        return []
+elif menu == "3. Vacantes Laborales":
+    st.header("💼 Vacantes Laborales")
+    st.write("Accede a ofertas laborales actualizadas según tu país, perfil o interés.")
 
-def mock_scholarships(country):
-    pool = {
-        "Panamá": [{"name": "IFARHU", "link": "https://www.ifarhu.gob.pa"}],
-        "Chile": [{"name": "Becas Chile", "link": "https://www.becaschile.cl"}],
-        "Global": [{"name": "Scholarship Portal", "link": "https://www.scholarshipportal.com"}]
-    }
-    return pool.get(country, pool["Global"])
+elif menu == "4. Universidades":
+    st.header("🎓 Universidades")
+    st.write("Busca dónde estudiar tu carrera ideal, según país, modalidad y requisitos.")
 
-def jobs_demo(country, profile):
-    # Placeholder simulated results
-    return [
-        {"title": f"Analista de Datos en {country}", "location": country, "link": "#"},
-        {"title": f"Ingeniero de Software Jr. en {country}", "location": country, "link": "#"},
-        {"title": f"Consultor de Negocios en {country}", "location": country, "link": "#"},
-    ]
+elif menu == "5. Becas":
+    st.header("💰 Becas")
+    st.write("Encuentra oportunidades de financiamiento para tu educación. Filtra por país y nivel académico.")
 
-def resumen_perfil(resultados):
-    top_dim = max(resultados, key=resultados.get)
-    recomend = {
-        "Analítico": "Ciencias, ingeniería, análisis de datos",
-        "Creativo": "Diseño gráfico, publicidad, UX/UI",
-        "Social": "Psicología, trabajo social, educación",
-        "Técnico": "Ingeniería, programación, redes",
-        "Empresarial": "Administración, economía, negocios",
-        "Realista": "Logística, mantenimiento, construcción"
-    }
-    return f"Tu perfil dominante es **{top_dim}**. Te recomendamos explorar áreas como **{recomend[top_dim]}**."
+elif menu == "6. Cursos":
+    st.header("📚 Cursos Complementarios")
+    st.write("Accede a cursos que te ayudarán a reforzar habilidades clave o reconvertirte profesionalmente.")
 
-def show_dashboard():
-    user = st.session_state.user
-    results = st.session_state.results
-    st.markdown('<p class="sub-header">📊 Tu Dashboard</p>', unsafe_allow_html=True)
+elif menu == "7. Indicadores Salariales":
+    st.header("📈 Indicadores Salariales")
+    st.write("Consulta rangos salariales por profesión, país y nivel de experiencia.")
 
-    st.write("### Resultado del Test")
-    st.info(resumen_perfil(results))
-    st.write("")
+elif menu == "8. Plan Personal de Acción":
+    st.header("🧭 Plan Personal de Acción")
+    st.write("Recibe una hoja de ruta personalizada con los próximos pasos para alcanzar tu meta profesional.")
 
-    st.write("### 🔎 Vacantes sugeridas")
-    for job in jobs_demo(user["country"], " ".join([k for k,v in results.items() if v>3.5])):
-        st.markdown(f"- [{job['title']}]({job['link']}) • {job['location']}")
-
-    st.write("### 🎓 Universidades destacadas")
-    for u in obtener_universities(user["country"]):
-        st.markdown(f"- [{u['name']}]({u['web_pages'][0]})")
-
-    st.write("### 💰 Becas disponibles")
-    for b in mock_scholarships(user["country"]):
-        st.markdown(f"- [{b['name']}]({b['link']})")
-
-# MAIN
-if not st.session_state.logged_in:
-    login()
-else:
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("EduHub")
-        nav = st.radio("Ir a:", ["Inicio", "Test", "Dashboard"])
-        st.session_state.page = nav
-
-    if st.session_state.page == "Inicio":
-        show_landing()
-    elif st.session_state.page == "Test":
-        show_test()
-    elif st.session_state.page == "Dashboard":
-        show_dashboard()
+st.info("💡 Tip: Este demo solo muestra el esquema general. Podemos conectar APIs y bases de datos reales para tenerlo 100% funcional.")
