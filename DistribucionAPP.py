@@ -67,7 +67,7 @@ if stores_file is not None and distribution_file is not None:
     if df_stores is not None and df_distribution is not None:
         st.header("Resultados de la Distribución")
 
-        # Define minimum quantity per store
+        # Definir la cantidad mínima por tienda
         minimum_quantity = 6
 
         # Identify store names and priorities
