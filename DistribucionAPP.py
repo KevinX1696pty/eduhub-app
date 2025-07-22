@@ -2,6 +2,11 @@ import pandas as pd
 import numpy as np
 import os # Import os module to check for file existence
 
+# Initialize df_stores and df_distribution to None
+df_stores = None
+df_distribution = None
+
+
 # --- 1. Definir la estructura de las tiendas (Leer desde archivo) ---
 # Especifica la ruta del archivo de tiendas que subirás
 stores_file_path = '/content/df_stores.csv' # Cambia 'df_stores.csv' si tu archivo tiene otro nombre
@@ -9,8 +14,7 @@ stores_file_path = '/content/df_stores.csv' # Cambia 'df_stores.csv' si tu archi
 # Verifica si el archivo de tiendas existe antes de intentar leerlo
 if not os.path.exists(stores_file_path):
     print(f"Error: No se encontró el archivo de tiendas en {stores_file_path}. Por favor, sube el archivo.")
-    # Si el archivo no se encuentra, no podemos continuar. Puedes agregar un 'exit()' aquí si es crítico.
-    # Por ahora, imprimimos el error y el script intentará cargar el otro archivo, lo que probablemente fallará después.
+    # df_stores remains None
 else:
     try:
         # Cargar la información de las tiendas desde el archivo (asumiendo CSV con ';')
@@ -51,7 +55,7 @@ if df_stores is not None:
     # Verifica si el archivo de distribución existe antes de intentar leerlo
     if not os.path.exists(distribution_file_path):
         print(f"Error: No se encontró el archivo de distribución en {distribution_file_path}. Por favor, sube el archivo.")
-        df_distribution = None # Set df_distribution to None to indicate failure
+        # df_distribution remains None
     else:
         try:
             # Cargar los datos del archivo CSV con delimitador de punto y coma y encabezado
